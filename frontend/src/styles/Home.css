@@ -6,12 +6,13 @@
     align-items: center;
     height: 100vh;
     width: 100vw;
-    background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+    background: radial-gradient(circle at center, rgba(0, 123, 255, 0.2), #000000);
     color: white;
     font-family: "Inter", sans-serif;
     text-align: center;
     overflow: hidden;
     position: relative;
+    transition: transform 0.1s ease-out; 
 }
 
 .home__content {
@@ -23,26 +24,15 @@
     width: 100%;
 }
 
-/* Subtle animated background */
-.home::before {
-    content: "";
+.particle {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, rgba(0, 123, 255, 0.1), transparent);
-    animation: pulse 5s infinite alternate;
+    border-radius: 50%;
+    background: rgba(0, 123, 255, 0.6);
+    filter: blur(3px);
+    pointer-events: none;
+    transition: transform 0.05s linear;
 }
 
-@keyframes pulse {
-    from {
-        transform: scale(1);
-        opacity: 0.5;
-    }
-    to {
-        transform: scale(1.2);
-        opacity: 1;
-    }
-}
 
 /* ===== HEADER ===== */
 .header {
@@ -85,10 +75,6 @@
     transition: transform 0.3s;
 }
 
-.search-box:hover {
-    transform: translateY(-5px);
-}
-
 .search-box__label {
     display: block;
     font-size: 1rem;
@@ -118,6 +104,30 @@
     box-shadow: 0 0 15px rgba(0, 123, 255, 0.5);
 }
 
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    max-width: 450px;
+    justify-content: center;
+}
+
+.tag {
+    background: #007bff;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.tag:hover {
+    background: #0056b3;
+}
+
+
 /* ===== BUTTON ===== */
 .start-button {
     display: inline-block;
@@ -128,14 +138,14 @@
     font-size: 1.2rem;
     font-weight: bold;
     text-decoration: none;
-    transition: 0.3s;
+    transition: 0.3s ease-in-out;
     box-shadow: 0 4px 20px rgba(0, 123, 255, 0.4);
     margin-top: 20px;
     letter-spacing: 1px;
+    cursor: pointer;
 }
 
 .start-button:hover {
     background: linear-gradient(135deg, #0056b3, #003d82);
-    box-shadow: 0 4px 30px rgba(0, 123, 255, 0.6);
-    transform: scale(1.1);
+    cursor: pointer;
 }
