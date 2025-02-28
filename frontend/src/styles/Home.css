@@ -1,19 +1,4 @@
 /* ===== GENERAL STYLES ===== */
-.home {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    width: 100vw;
-    background: radial-gradient(circle at center, rgba(0, 123, 255, 0.2), #000000);
-    color: white;
-    font-family: "Inter", sans-serif;
-    text-align: center;
-    overflow: hidden;
-    position: relative;
-    transition: transform 0.1s ease-out; 
-}
 
 .home__content {
     display: flex;
@@ -22,39 +7,6 @@
     align-items: center;     
     height: 100%;            
     width: 100%;
-}
-
-.particle {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(0, 123, 255, 0.6);
-    filter: blur(3px);
-    pointer-events: none;
-    transition: transform 0.05s linear;
-}
-
-
-/* ===== HEADER ===== */
-.header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 16px 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(10px);
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-}
-
-.header__title {
-    font-size: 2rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: #007bff;
-    text-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
 }
 
 /* ===== SEARCH BOX ===== */
