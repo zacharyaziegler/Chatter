@@ -4,11 +4,13 @@ import "../styles/Chat.css";
 
 const Chat = () => {
   return (
-    <Background> 
-      <Header />
-      <main className="chat__content">
-        
-      </main>
+    <Background>
+      <div className="chat__container">
+        <Header />
+        <div className="chat-box">
+          {/* Chat content will go here */}
+        </div>
+      </div>
     </Background>
   );
 };
