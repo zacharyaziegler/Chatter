@@ -1,20 +1,10 @@
-.chat__container {
+.video_container {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between; /* Puts space between the webcams */
     align-items: center;
-    width: 100vw;
-    height: 100vh;
-    z-index: 5;
+    width: 100%;
+    max-width: 900px; /* Limits the width so it doesn't stretch too far */
+    margin: 0 auto; /* Centers the container */
+    padding: 20px 0;
 }
 
-.chat-box {
-    width: 75vw;
-    height: calc(100vh - 110px); /* viewport minus header */
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(10px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0px 20px 20px 20px;
-    margin-top: 110px;
-}
