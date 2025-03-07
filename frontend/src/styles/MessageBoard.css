@@ -19,6 +19,9 @@
     max-width: 80%;
     word-wrap: break-word;
     font-size: 1rem;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    word-break: break-all;
 }
 
 .message.sent {
