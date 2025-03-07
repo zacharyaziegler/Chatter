@@ -20,11 +20,21 @@
     gap: 20px; 
 }
 
- .video_container {
+.video_container {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     align-items: flex-start;
-    gap: 20px; 
-    width: auto; 
-    margin-left: 20px;
+    gap: 20px;
+}
+
+.chat_interface {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 90%;
+}
+
+.text-box {
+    width: 100%;
 }
