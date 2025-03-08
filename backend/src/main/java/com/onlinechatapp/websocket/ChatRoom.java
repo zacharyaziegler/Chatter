@@ -16,11 +16,11 @@ public class ChatRoom {
         this.user2 = user2;
     }
 
-    public void broadcastMessage(String message) throws IOException {
-        if (user1.isOpen()) {
+    public void broadcastMessage(String message, WebSocketSession sender) throws IOException {
+        if (user1.isOpen() && !user1.equals(sender)) {
             user1.sendMessage(new TextMessage("MSG:" + message));
         }
-        if (user2.isOpen()) {
+        if (user2.isOpen() && !user2.equals(sender)) {
             user2.sendMessage(new TextMessage("MSG:" + message));
         }
     }

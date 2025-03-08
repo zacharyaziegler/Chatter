@@ -20,14 +20,28 @@ public class ChatHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
         String payload = message.getPayload();
         System.out.println("Received: " + payload);
-
-        if (payload.startsWith("TAGS:")) {
-            String[] tags = payload.substring(5).split(",");
-            handleUserConnection(session, tags);
-        } else if (payload.startsWith("MSG:")) {
-            String chatRoomId = payload.substring(4, payload.indexOf(":"));
-            String chatMessage = payload.substring(payload.indexOf(":") + 1);
-            sendMessageToRoom(chatRoomId, chatMessage);
+    
+        try {
+            if (payload.startsWith("TAGS:")) {
+                String[] tags = payload.substring(5).split(",");
+                handleUserConnection(session, tags);
+            } else if (payload.startsWith("MSG:")) {
+                // Safely split message into parts
+                String[] parts = payload.split(":", 3);
+    
+                if (parts.length < 3) {
+                    System.out.println("Invalid message format: " + payload);
+                    return; // Ignore bad message instead of crashing
+                }
+    
+                String chatRoomId = parts[1]; // Extract room ID
+                String chatMessage = parts[2]; // Extract actual message
+    
+                sendMessageToRoom(chatRoomId, chatMessage, session);
+            }
+        } catch (Exception e) {
+            System.err.println("Error handling message: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -57,11 +71,16 @@ public class ChatHandler extends TextWebSocketHandler {
         }
     }
 
-    private void sendMessageToRoom(String chatRoomId, String message) throws IOException {
+    private void sendMessageToRoom(String chatRoomId, String message, WebSocketSession senderSession) throws IOException {
         ChatRoom room = activeChats.get(chatRoomId);
-        if (room != null) {
-            room.broadcastMessage(message);
+    
+        if (room == null) {
+            System.out.println("No chat room found for ID: " + chatRoomId);
+            return;
         }
+    
+        // Send message to the other user ONLY
+        room.broadcastMessage(message, senderSession);
     }
 
     @Override
