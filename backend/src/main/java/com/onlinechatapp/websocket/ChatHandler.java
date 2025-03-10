@@ -26,23 +26,37 @@ public class ChatHandler extends TextWebSocketHandler {
                 String[] tags = payload.substring(5).split(",");
                 handleUserConnection(session, tags);
             } else if (payload.startsWith("MSG:")) {
-                // Safely split message into parts
                 String[] parts = payload.split(":", 3);
-    
                 if (parts.length < 3) {
                     System.out.println("Invalid message format: " + payload);
-                    return; // Ignore bad message instead of crashing
+                    return;
                 }
-    
-                String chatRoomId = parts[1]; // Extract room ID
-                String chatMessage = parts[2]; // Extract actual message
-    
+                String chatRoomId = parts[1];
+                String chatMessage = parts[2];
                 sendMessageToRoom(chatRoomId, chatMessage, session);
+            } 
+            // Handle WebRTC signaling messages
+            else if (payload.startsWith("RTC_OFFER:") || payload.startsWith("RTC_ANSWER:") || payload.startsWith("ICE_CANDIDATE:")) {
+                String[] parts = payload.split(":", 3);
+                if (parts.length < 3) return;
+    
+                String chatRoomId = parts[1];
+                String rtcData = parts[2];
+    
+                relayWebRTCMessage(chatRoomId, rtcData, session);
             }
         } catch (Exception e) {
             System.err.println("Error handling message: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void relayWebRTCMessage(String chatRoomId, String rtcData, WebSocketSession senderSession) throws IOException {
+        ChatRoom room = activeChats.get(chatRoomId);
+    
+        if (room == null) return;
+    
+        room.relayRTCMessage(rtcData, senderSession);
     }
 
     private void handleUserConnection(WebSocketSession session, String[] tags) throws IOException {
@@ -79,9 +93,12 @@ public class ChatHandler extends TextWebSocketHandler {
             return;
         }
     
-        // Send message to the other user ONLY
+        System.out.println("Forwarding message to chat room: " + chatRoomId);
+    
+        // Send the message to the other user ONLY (exclude sender)
         room.broadcastMessage(message, senderSession);
     }
+    
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
