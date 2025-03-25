@@ -20,3 +20,12 @@
     text-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
     font-family: "Inter", sans-serif;
 }
+
+.header__title a {
+    text-decoration: none;
+    color: inherit; /* inherit the parent color (#007bff) */
+  }
+  
+  .header__title a:hover {
+    text-decoration: underline; /* or however you want the hover style */
+  }
