@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Background from "../components/Background";
 import ChatBox from "../components/ChatBox";
-import WebcamView from "../components/WebCamView";
 import MessageBoard from "../components/MessageBoard";
 import TextBox from "../components/TextBox";
 import "../styles/Chat.css";
@@ -22,7 +21,7 @@ const Chat = () => {
 
     ws.onopen = () => {
         console.log("Connected to WebSocket server.");
-        setStatus("Connected. Waiting for a match...");
+        setStatus("Waiting for a match...");
 
         // Send user tags from localStorage
         const tags = JSON.parse(localStorage.getItem("tags")) || [];
@@ -75,12 +74,6 @@ const Chat = () => {
             {/* Status Indicator */}
             <div className="chat_status">
               <p>{status}</p>
-            </div>
-
-            {/* Left: Webcams */}
-            <div className="video_container">
-              <WebcamView isLocal={true} mirrored={true} />
-              <WebcamView isLocal={false} videoStream={remoteStream} />
             </div>
 
             {/* Right: Message Board + Text Input */}

@@ -2,7 +2,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import "../styles/TextBox.css";
 
-const TextBox = ({ onSendMessage }) => {
+const TextBox = ({ onSendMessage, onSkip }) => {
   const [message, setMessage] = useState("");
 
   // Handles input change
@@ -13,8 +13,15 @@ const TextBox = ({ onSendMessage }) => {
   // Handles message submission
   const handleSendMessage = () => {
     if (message.trim() !== "") {
-      onSendMessage(message); // Calls function passed from Chat.jsx
+      onSendMessage(message); // Calls function passed from parent
       setMessage(""); // Clears input after sending
+    }
+  };
+
+  // Example skip handler if you want to pass it up to the parent
+  const handleSkip = () => {
+    if (onSkip) {
+      onSkip();
     }
   };
 
@@ -26,17 +33,21 @@ const TextBox = ({ onSendMessage }) => {
         placeholder="Type a message..."
         value={message}
         onChange={handleInputChange}
-        onKeyDown={(e) => e.key === "Enter" && handleSendMessage()} // Sends on Enter key
+        onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
       />
       <button className="send-button" onClick={handleSendMessage}>
         Send
+      </button>
+      <button className="skip-button" onClick={handleSkip}>
+        Skip
       </button>
     </div>
   );
 };
 
-export default TextBox;
-
 TextBox.propTypes = {
-    onSendMessage: PropTypes.node.isRequired
-}
+  onSendMessage: PropTypes.func.isRequired,
+  onSkip: PropTypes.func, // optional, if you want to handle skipping
+};
+
+export default TextBox;

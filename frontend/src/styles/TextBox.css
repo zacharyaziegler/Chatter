@@ -4,7 +4,7 @@
     padding: 10px;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(10px);
-    border-radius: 8px;
+    border-radius: 0px 0px 8px 8px;
     align-items: center;
 }
 
@@ -37,3 +37,18 @@
 .send-button:hover {
     background: #0056b3;
 }
+
+.skip-button {
+    background: #dc3545; /* A red color */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .skip-button:hover {
+    background: #c82333;
+  }
