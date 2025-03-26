@@ -48,6 +48,12 @@ const TextBox = ({ onSendMessage, onSkip }) => {
 TextBox.propTypes = {
   onSendMessage: PropTypes.func.isRequired,
   onSkip: PropTypes.func, // optional, if you want to handle skipping
+  skipLabel: PropTypes.string,
+};
+
+TextBox.defaultProps = {
+  onSkip: () => {},
+  skipLabel: "Skip",
 };
 
 export default TextBox;

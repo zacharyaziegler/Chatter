@@ -1,54 +1,70 @@
 .text-box {
-    display: flex;
-    gap: 10px;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(10px);
-    border-radius: 0px 0px 8px 8px;
-    align-items: center;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 0px 0px 8px 8px;
+  align-items: center;
+  width: 100%;
 }
 
 .text-input {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    outline: none;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  outline: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
 .text-input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .send-button {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.3s ease;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 .send-button:hover {
-    background: #0056b3;
+  background: #0056b3;
 }
 
 .skip-button {
-    background: #dc3545; /* A red color */
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.3s ease;
+  background: #dc3545; /* A red color */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.skip-button:hover {
+  background: #c82333;
+}
+
+@media (max-width: 437px) {
+  .text-box {
+    flex-direction: column;
+    gap: 5px;
   }
-  
-  .skip-button:hover {
-    background: #c82333;
+
+  .text-input {
+    width: 100%;
   }
+
+  .text-box button {
+    width: 100%;
+  }
+}

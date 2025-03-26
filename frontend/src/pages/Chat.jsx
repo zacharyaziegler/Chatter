@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Header from "../components/Header";
 import Background from "../components/Background";
 import ChatBox from "../components/ChatBox";
@@ -13,44 +13,63 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [status, setStatus] = useState("Searching for a match...");
   const [roomId, setRoomId] = useState(null);
+  const roomIdRef = useRef(roomId);
+  const [hasSkipped, setHasSkipped] = useState(false);
 
+  useEffect(() => {
+    roomIdRef.current = roomId;
+  }, [roomId]);
 
   // Initialize WebSocket connection
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:8080/chat");
 
     ws.onopen = () => {
-        console.log("Connected to WebSocket server.");
-        setStatus("Waiting for a match...");
+      console.log("Connected to WebSocket server.");
+      setStatus("Waiting for a match...");
 
-        // Send user tags from localStorage
-        const tags = JSON.parse(localStorage.getItem("tags")) || [];
-        ws.send(`TAGS:${tags.join(",")}`);
+      // Send user tags from localStorage
+      const tags = JSON.parse(localStorage.getItem("tags")) || [];
+      ws.send(`TAGS:${tags.join(",")}`);
     };
 
     ws.onmessage = (event) => {
-        const data = event.data;
+      const data = event.data;
 
-        if (data.startsWith("MATCHED:")) {
-            const matchedRoomId = data.split(":")[1];
-            setRoomId(matchedRoomId);
-            setStatus("Matched! Start chatting.");
-        } else if (data.startsWith("MSG:")) {
-            setMessages((prev) => [...prev, { text: data.substring(4), isSent: false }]);
+      if (data.startsWith("MATCHED:")) {
+        const matchedRoomId = data.split(":")[1];
+        setRoomId(matchedRoomId);
+        setStatus("Matched! Start chatting.");
+      } else if (data.startsWith("MSG:")) {
+        setMessages((prev) => [
+          ...prev,
+          { text: data.substring(4), isSent: false },
+        ]);
+      } else if (data.startsWith("PARTNER_LEFT:")) {
+        console.log("Received PARTNER_LEFT message:", data);
+        // The other user left the match
+        const partedRoom = data.split(":")[1];
+        if (partedRoom === roomIdRef.current) {
+          console.log("Parted room if entered");
+          setRoomId(null);
+          setMessages([]);
+          setStatus("Your partner left the match. Click 'Find new match'.");
+          setHasSkipped(true);
         }
+      }
     };
 
     ws.onclose = () => {
-        console.log("Disconnected from WebSocket server.");
-        setStatus("Disconnected.");
+      console.log("Disconnected from WebSocket server.");
+      setStatus("Disconnected.");
     };
 
     setSocket(ws);
 
     return () => {
-        ws.close();
+      ws.close();
     };
-}, []);
+  }, []);
 
   // Handle sending a message
   const handleSendMessage = (newMessage) => {
@@ -62,9 +81,43 @@ const Chat = () => {
 
       const formattedMessage = `MSG:${roomId}:${newMessage}`;
       socket.send(formattedMessage);
-      setMessages((prevMessages) => [...prevMessages, { text: newMessage, isSent: true }]);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { text: newMessage, isSent: true },
+      ]);
     }
   };
+
+  // Handle skip logic
+  const handleSkip = () => {
+    if (roomId && !hasSkipped) {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(`LEAVE:${roomId}`);
+      }
+      // 1) If we currently have a match and haven't skipped yet:
+      // "Disconnect" from the current match
+      setRoomId(null);
+      setMessages([]);
+      setStatus("You left the match. Click 'Find new match' to reconnect.");
+      setHasSkipped(true);
+      // Optionally, tell the server we left:
+      // socket.send(`LEAVE:${roomId}`);
+      // Or just rely on setting roomId = null
+    } else {
+      // 2) If we have no match or we've already skipped:
+      // Clear chat, request new match
+      setMessages([]);
+      setStatus("Waiting for a match...");
+      setHasSkipped(false);
+
+      // Re-send tags to find new match (if socket is open)
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        const tags = JSON.parse(localStorage.getItem("tags")) || [];
+        socket.send(`TAGS:${tags.join(",")}`);
+      }
+    }
+  };
+
   return (
     <Background>
       <div className="chat__container">
@@ -79,7 +132,7 @@ const Chat = () => {
             {/* Right: Message Board + Text Input */}
             <div className="chat_interface">
               <MessageBoard messages={messages} />
-              <TextBox onSendMessage={handleSendMessage} />
+              <TextBox onSendMessage={handleSendMessage} onSkip={handleSkip} />
             </div>
           </div>
         </ChatBox>

@@ -34,9 +34,13 @@ public class ChatHandler extends TextWebSocketHandler {
                 String chatRoomId = parts[1];
                 String chatMessage = parts[2];
                 sendMessageToRoom(chatRoomId, chatMessage, session);
-            } 
-            // Handle WebRTC signaling messages
-            else if (payload.startsWith("RTC_OFFER:") || payload.startsWith("RTC_ANSWER:") || payload.startsWith("ICE_CANDIDATE:")) {
+            } else if (payload.startsWith("LEAVE:")) {
+                String[] parts = payload.split(":", 2);
+                if (parts.length < 2) return;
+            
+                String chatRoomId = parts[1];
+                handleLeave(session, chatRoomId);
+            } else if (payload.startsWith("RTC_OFFER:") || payload.startsWith("RTC_ANSWER:") || payload.startsWith("ICE_CANDIDATE:")) {
                 String[] parts = payload.split(":", 3);
                 if (parts.length < 3) return;
     
@@ -48,6 +52,21 @@ public class ChatHandler extends TextWebSocketHandler {
         } catch (Exception e) {
             System.err.println("Error handling message: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private void handleLeave(WebSocketSession leavingSession, String chatRoomId) throws IOException {
+        ChatRoom room = activeChats.get(chatRoomId);
+        if (room == null) return;
+    
+        // If the user is in that room, remove it from activeChats
+        if (room.containsSession(leavingSession)) {
+            // Notify the other user
+            room.notifyPartnerLeft(leavingSession);
+    
+            // Remove the room from activeChats
+            activeChats.remove(chatRoomId);
+            System.out.println("Room " + chatRoomId + " removed because user left.");
         }
     }
 
@@ -103,7 +122,26 @@ public class ChatHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         System.out.println("User disconnected: " + session.getId());
+        // Remove from waitingUsers if present
         waitingUsers.removeIf(user -> user.getSession().equals(session));
-        activeChats.values().removeIf(room -> room.containsSession(session));
+    
+        // Also remove from activeChats if present
+        // We need to find which room they’re in
+        ChatRoom roomToRemove = null;
+        for (ChatRoom room : activeChats.values()) {
+            if (room.containsSession(session)) {
+                try {
+                    room.notifyPartnerLeft(session);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                roomToRemove = room;
+                break;
+            }
+        }
+        if (roomToRemove != null) {
+            activeChats.remove(roomToRemove.getId());
+            System.out.println("Removed room " + roomToRemove.getId() + " because user disconnected.");
+        }
     }
 }

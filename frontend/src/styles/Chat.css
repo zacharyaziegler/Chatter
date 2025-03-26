@@ -10,6 +10,12 @@
 }
  */
 
+ *,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
  .chat_content {
     display: flex;
     flex-direction: column;
@@ -33,4 +39,11 @@
     height: 90%;
     width: 100%;
     align-items: stretch;
+    display: flex;
+}
+  
+@media (max-width: 666px) {
+    .chat_content {
+      padding: 0px;
+    }
 }

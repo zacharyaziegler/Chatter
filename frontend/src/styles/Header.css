@@ -1,31 +1,37 @@
 /* ===== HEADER ===== */
 .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 16px 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(10px);
-    text-align: center;
-    z-index: 5;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 16px 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  text-align: center;
+  z-index: 5;
 }
 
 .header__title {
-    font-size: 2rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: #007bff;
-    text-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
-    font-family: "Inter", sans-serif;
+  font-size: 2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #007bff;
+  text-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+  font-family: "Inter", sans-serif;
 }
 
 .header__title a {
-    text-decoration: none;
-    color: inherit; /* inherit the parent color (#007bff) */
+  text-decoration: none;
+  color: inherit; /* inherit the parent color (#007bff) */
+}
+
+.header__title a:hover {
+  text-decoration: underline; /* or however you want the hover style */
+}
+
+@media (max-width: 666px) {
+  .header {
+    padding: 0;
   }
-  
-  .header__title a:hover {
-    text-decoration: underline; /* or however you want the hover style */
-  }
+}
