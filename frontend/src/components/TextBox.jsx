@@ -30,7 +30,7 @@ const TextBox = ({ onSendMessage, onSkip, skipLabel, disabled }) => {
       <input
         type="text"
         className="text-input"
-        placeholder="Type a message..."
+        placeholder={disabled ? "Waiting for a match..." : "Type a message..."}
         value={message}
         onChange={handleInputChange}
         onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}

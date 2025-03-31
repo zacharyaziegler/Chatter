@@ -39,6 +39,7 @@ const Chat = () => {
       const data = event.data;
 
       if (data.startsWith("MATCHED:")) {
+        setMessages([]);
         const matchedRoomId = data.split(":")[1];
         setRoomId(matchedRoomId);
         setStatus("Matched! Start chatting.");
@@ -54,7 +55,6 @@ const Chat = () => {
         if (partedRoom === roomIdRef.current) {
           console.log("Parted room if entered");
           setRoomId(null);
-          setMessages([]);
           setStatus("Your partner left the match. Click 'Find new match'.");
           setHasSkipped(true);
           
@@ -97,19 +97,12 @@ const Chat = () => {
       if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(`LEAVE:${roomId}`);
       }
-      // 1) If we currently have a match and haven't skipped yet:
       // "Disconnect" from the current match
       setRoomId(null);
-      setMessages([]);
       setStatus("You left the match. Click 'Find new match' to reconnect.");
       setHasSkipped(true);
-      // Optionally, tell the server we left:
-      // socket.send(`LEAVE:${roomId}`);
-      // Or just rely on setting roomId = null
     } else {
-      // 2) If we have no match or we've already skipped:
-      // Clear chat, request new match
-      setMessages([]);
+      // Request new match, maintain old chat until new match is found
       setStatus("Waiting for a match...");
       setHasSkipped(false);
 
