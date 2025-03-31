@@ -15,6 +15,8 @@ const Chat = () => {
   const [roomId, setRoomId] = useState(null);
   const roomIdRef = useRef(roomId);
   const [hasSkipped, setHasSkipped] = useState(false);
+  const skipLabel = roomId ? "Skip" : "Find new match";
+  const inputDisabled = !roomId;
 
   useEffect(() => {
     roomIdRef.current = roomId;
@@ -55,6 +57,7 @@ const Chat = () => {
           setMessages([]);
           setStatus("Your partner left the match. Click 'Find new match'.");
           setHasSkipped(true);
+          
         }
       }
     };
@@ -132,7 +135,7 @@ const Chat = () => {
             {/* Right: Message Board + Text Input */}
             <div className="chat_interface">
               <MessageBoard messages={messages} />
-              <TextBox onSendMessage={handleSendMessage} onSkip={handleSkip} />
+              <TextBox onSendMessage={handleSendMessage} onSkip={handleSkip} skipLabel={skipLabel} disabled = {inputDisabled}/>
             </div>
           </div>
         </ChatBox>

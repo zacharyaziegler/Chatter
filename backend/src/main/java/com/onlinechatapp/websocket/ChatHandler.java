@@ -20,7 +20,7 @@ public class ChatHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
         String payload = message.getPayload();
         System.out.println("Received: " + payload);
-    
+
         try {
             if (payload.startsWith("TAGS:")) {
                 String[] tags = payload.substring(5).split(",");
@@ -36,17 +36,20 @@ public class ChatHandler extends TextWebSocketHandler {
                 sendMessageToRoom(chatRoomId, chatMessage, session);
             } else if (payload.startsWith("LEAVE:")) {
                 String[] parts = payload.split(":", 2);
-                if (parts.length < 2) return;
-            
+                if (parts.length < 2)
+                    return;
+
                 String chatRoomId = parts[1];
                 handleLeave(session, chatRoomId);
-            } else if (payload.startsWith("RTC_OFFER:") || payload.startsWith("RTC_ANSWER:") || payload.startsWith("ICE_CANDIDATE:")) {
+            } else if (payload.startsWith("RTC_OFFER:") || payload.startsWith("RTC_ANSWER:")
+                    || payload.startsWith("ICE_CANDIDATE:")) {
                 String[] parts = payload.split(":", 3);
-                if (parts.length < 3) return;
-    
+                if (parts.length < 3)
+                    return;
+
                 String chatRoomId = parts[1];
                 String rtcData = parts[2];
-    
+
                 relayWebRTCMessage(chatRoomId, rtcData, session);
             }
         } catch (Exception e) {
@@ -57,30 +60,34 @@ public class ChatHandler extends TextWebSocketHandler {
 
     private void handleLeave(WebSocketSession leavingSession, String chatRoomId) throws IOException {
         ChatRoom room = activeChats.get(chatRoomId);
-        if (room == null) return;
-    
+        if (room == null)
+            return;
+
         // If the user is in that room, remove it from activeChats
         if (room.containsSession(leavingSession)) {
             // Notify the other user
             room.notifyPartnerLeft(leavingSession);
-    
+
             // Remove the room from activeChats
             activeChats.remove(chatRoomId);
             System.out.println("Room " + chatRoomId + " removed because user left.");
         }
     }
 
-    private void relayWebRTCMessage(String chatRoomId, String rtcData, WebSocketSession senderSession) throws IOException {
+    private void relayWebRTCMessage(String chatRoomId, String rtcData, WebSocketSession senderSession)
+            throws IOException {
         ChatRoom room = activeChats.get(chatRoomId);
-    
-        if (room == null) return;
-    
+
+        if (room == null)
+            return;
+
         room.relayRTCMessage(rtcData, senderSession);
     }
 
     private void handleUserConnection(WebSocketSession session, String[] tags) throws IOException {
         synchronized (waitingUsers) {
             Optional<UserSession> match = waitingUsers.stream()
+                    .filter(user -> !user.getSession().getId().equals(session.getId()))
                     .filter(user -> user.matchesTags(tags))
                     .findFirst();
 
@@ -98,33 +105,34 @@ public class ChatHandler extends TextWebSocketHandler {
 
                 System.out.println("Matched " + session.getId() + " with " + matchedUser.getSession().getId());
             } else {
+                waitingUsers.removeIf(user -> user.getSession().getId().equals(session.getId()));
                 waitingUsers.add(new UserSession(session, tags));
                 session.sendMessage(new TextMessage("WAITING"));
             }
         }
     }
 
-    private void sendMessageToRoom(String chatRoomId, String message, WebSocketSession senderSession) throws IOException {
+    private void sendMessageToRoom(String chatRoomId, String message, WebSocketSession senderSession)
+            throws IOException {
         ChatRoom room = activeChats.get(chatRoomId);
-    
+
         if (room == null) {
             System.out.println("No chat room found for ID: " + chatRoomId);
             return;
         }
-    
+
         System.out.println("Forwarding message to chat room: " + chatRoomId);
-    
+
         // Send the message to the other user ONLY (exclude sender)
         room.broadcastMessage(message, senderSession);
     }
-    
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         System.out.println("User disconnected: " + session.getId());
         // Remove from waitingUsers if present
         waitingUsers.removeIf(user -> user.getSession().equals(session));
-    
+
         // Also remove from activeChats if present
         // We need to find which room they’re in
         ChatRoom roomToRemove = null;
