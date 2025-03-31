@@ -2,7 +2,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import "../styles/TextBox.css";
 
-const TextBox = ({ onSendMessage, onSkip }) => {
+const TextBox = ({ onSendMessage, onSkip, skipLabel, disabled }) => {
   const [message, setMessage] = useState("");
 
   // Handles input change
@@ -30,16 +30,17 @@ const TextBox = ({ onSendMessage, onSkip }) => {
       <input
         type="text"
         className="text-input"
-        placeholder="Type a message..."
+        placeholder={disabled ? "Waiting for a match..." : "Type a message..."}
         value={message}
         onChange={handleInputChange}
         onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+        disabled = {disabled}
       />
       <button className="send-button" onClick={handleSendMessage}>
         Send
       </button>
       <button className="skip-button" onClick={handleSkip}>
-        Skip
+        {skipLabel}
       </button>
     </div>
   );
@@ -47,7 +48,15 @@ const TextBox = ({ onSendMessage, onSkip }) => {
 
 TextBox.propTypes = {
   onSendMessage: PropTypes.func.isRequired,
-  onSkip: PropTypes.func, // optional, if you want to handle skipping
+  onSkip: PropTypes.func, 
+  skipLabel: PropTypes.string,
+  disabled: PropTypes.bool,
+};
+
+TextBox.defaultProps = {
+  onSkip: () => {},
+  skipLabel: "Skip",
+  disabled: false,
 };
 
 export default TextBox;

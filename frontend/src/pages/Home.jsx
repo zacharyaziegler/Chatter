@@ -49,7 +49,8 @@ const Home = () => {
           </div>
         </div>
 
-        <Link to={`/chat`} className="start-button">
+        <Link to={`/chat`} className="start-button" 
+        onClick={() => localStorage.setItem("tags", JSON.stringify(tags))}>
           Start Chatting
         </Link>
       </main>

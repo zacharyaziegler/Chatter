@@ -18,3 +18,10 @@
     padding: 0px 20px 20px 20px;
     margin-top: 110px;
 }
+
+@media (max-width: 666px) {
+    .chat-box {
+      width: 100vw;
+      margin-top: 78px;
+    }
+  }
