@@ -86,24 +86,44 @@ public class ChatHandler extends TextWebSocketHandler {
 
     private void handleUserConnection(WebSocketSession session, String[] tags) throws IOException {
         synchronized (waitingUsers) {
+            // First, try to find a waiting user (other than yourself) with at least one common tag.
             Optional<UserSession> match = waitingUsers.stream()
                     .filter(user -> !user.getSession().getId().equals(session.getId()))
                     .filter(user -> user.matchesTags(tags))
                     .findFirst();
-
+    
+            // If no common-tag match is found, then look for any available user.
+            if (!match.isPresent()) {
+                match = waitingUsers.stream()
+                        .filter(user -> !user.getSession().getId().equals(session.getId()))
+                        .findAny();
+            }
+    
             if (match.isPresent()) {
                 UserSession matchedUser = match.get();
                 waitingUsers.remove(matchedUser);
-
+    
                 String chatRoomId = UUID.randomUUID().toString();
                 ChatRoom chatRoom = new ChatRoom(chatRoomId, session, matchedUser.getSession());
-
                 activeChats.put(chatRoomId, chatRoom);
-
-                session.sendMessage(new TextMessage("MATCHED:" + chatRoomId));
-                matchedUser.getSession().sendMessage(new TextMessage("MATCHED:" + chatRoomId));
-
-                System.out.println("Matched " + session.getId() + " with " + matchedUser.getSession().getId());
+    
+                // Compute intersection of tags
+                List<String> userTags = Arrays.asList(tags);
+                List<String> waitingUserTags = matchedUser.getTags();
+                // Create a copy for intersection
+                Set<String> commonTags = new HashSet<>(userTags);
+                commonTags.retainAll(waitingUserTags);
+    
+                // Build the tag string. If none found, mark as "random".
+                String tagInfo = commonTags.isEmpty() ? "random" : String.join(",", commonTags);
+    
+                // Send MATCHED message with chatRoomId and tag info
+                String message = "MATCHED:" + chatRoomId + ":" + tagInfo;
+                session.sendMessage(new TextMessage(message));
+                matchedUser.getSession().sendMessage(new TextMessage(message));
+    
+                System.out.println("Matched " + session.getId() + " with " + 
+                                   matchedUser.getSession().getId() + " (common tags: " + tagInfo + ")");
             } else {
                 waitingUsers.removeIf(user -> user.getSession().getId().equals(session.getId()));
                 waitingUsers.add(new UserSession(session, tags));

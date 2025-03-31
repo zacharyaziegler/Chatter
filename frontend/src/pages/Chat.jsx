@@ -32,6 +32,7 @@ const Chat = () => {
 
       // Send user tags from localStorage
       const tags = JSON.parse(localStorage.getItem("tags")) || [];
+      console.log("TAGS: ", tags);
       ws.send(`TAGS:${tags.join(",")}`);
     };
 
@@ -40,9 +41,19 @@ const Chat = () => {
 
       if (data.startsWith("MATCHED:")) {
         setMessages([]);
-        const matchedRoomId = data.split(":")[1];
+        const parts = data.split(":");
+        const matchedRoomId = parts[1];
         setRoomId(matchedRoomId);
-        setStatus("Matched! Start chatting.");
+        if (parts.length > 2) {
+            const commonTags = parts[2]; // This is either a comma-separated list or "random"
+            if(commonTags !== "random"){
+                setStatus(`Matched! Common tags: ${commonTags}`);
+            } else {
+                setStatus("Matched! Start chatting.");
+            }
+        } else {
+            setStatus("Matched! Start chatting.");
+        }
       } else if (data.startsWith("MSG:")) {
         setMessages((prev) => [
           ...prev,

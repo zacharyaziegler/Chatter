@@ -18,6 +18,10 @@ public class UserSession {
         return session;
     }
 
+    public List<String> getTags() {
+        return tags;
+    }
+
     public boolean matchesTags(String[] inputTags) {
         for (String tag : inputTags) {
             if (tags.contains(tag)) {
@@ -26,4 +30,6 @@ public class UserSession {
         }
         return false;
     }
+
+
 }
