@@ -45,14 +45,17 @@ const Chat = () => {
         const matchedRoomId = parts[1];
         setRoomId(matchedRoomId);
         if (parts.length > 2) {
-            const commonTags = parts[2]; // This is either a comma-separated list or "random"
-            if(commonTags !== "random"){
-                setStatus(`Matched! Common tags: ${commonTags}`);
-            } else {
-                setStatus("Matched! Start chatting.");
-            }
+          const commonTags = parts[2].trim(); // This is either a comma-separated list or "random"
+          console.log(commonTags);
+          if (commonTags === "no common match") {
+            setStatus("Matched! No one with your tags was available—connecting you with a random user.");          
+          } else if (!commonTags || commonTags === "random"){
+            setStatus(`Matched with a random user!`);
+          } else {
+            setStatus(`Matched! Common Tags: ${commonTags}`);
+          }
         } else {
-            setStatus("Matched! Start chatting.");
+          setStatus("Matched with a random user!");
         }
       } else if (data.startsWith("MSG:")) {
         setMessages((prev) => [
@@ -68,7 +71,6 @@ const Chat = () => {
           setRoomId(null);
           setStatus("Your partner left the match. Click 'Find new match'.");
           setHasSkipped(true);
-          
         }
       }
     };
@@ -139,7 +141,12 @@ const Chat = () => {
             {/* Right: Message Board + Text Input */}
             <div className="chat_interface">
               <MessageBoard messages={messages} />
-              <TextBox onSendMessage={handleSendMessage} onSkip={handleSkip} skipLabel={skipLabel} disabled = {inputDisabled}/>
+              <TextBox
+                onSendMessage={handleSendMessage}
+                onSkip={handleSkip}
+                skipLabel={skipLabel}
+                disabled={inputDisabled}
+              />
             </div>
           </div>
         </ChatBox>
