@@ -17,7 +17,6 @@ public class ChatHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) {
         System.out.println("User connected: " + session.getId());
         activeUserCount.incrementAndGet();
-        broadcastActiveUserCount();
     }
 
     @Override
@@ -211,6 +210,5 @@ public class ChatHandler extends TextWebSocketHandler {
             System.out.println("Removed room " + roomToRemove.getId() + " because user disconnected.");
         }
         activeUserCount.decrementAndGet();
-        broadcastActiveUserCount();
     }
 }
