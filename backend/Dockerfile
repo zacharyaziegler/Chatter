@@ -1,5 +1,5 @@
 # Build the application with Maven
-FROM maven:3.9.9-eclipse-temurin-11 as builder
+FROM maven:3.9.9-eclipse-temurin-22 as builder
 WORKDIR /app
 # Copy pom.xml and source code from the backend directory
 COPY pom.xml .
