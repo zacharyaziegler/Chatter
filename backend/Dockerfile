@@ -1,5 +1,5 @@
 # Build the application with Maven
-FROM maven:3.8.6-openjdk-22-slim as builder
+FROM maven:3.9.9-amazoncorretto as builder
 WORKDIR /app
 # Copy pom.xml and source code from the backend directory
 COPY pom.xml .
