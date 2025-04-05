@@ -32,7 +32,6 @@
 
 @media (max-width: 666px) {
   .header {
-    position:relative;
     padding: 0;
   }
 }
