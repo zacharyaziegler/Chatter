@@ -8,8 +8,7 @@ import "../styles/Chat.css";
 
 const Chat = () => {
   const [socket, setSocket] = useState(null);
-  // eslint-disable-next-line no-unused-vars
-  const [remoteStream, setRemoteStream] = useState(null);
+  // const [remoteStream, setRemoteStream] = useState(null);
   const [messages, setMessages] = useState([]);
   const [status, setStatus] = useState("Searching for a match...");
   const [roomId, setRoomId] = useState(null);
@@ -17,6 +16,8 @@ const Chat = () => {
   const [hasSkipped, setHasSkipped] = useState(false);
   const skipLabel = roomId ? "Skip" : "Find new match";
   const inputDisabled = !roomId;
+  // eslint-disable-next-line no-unused-vars
+  const [partnerTyping, setPartnerTyping] = useState(false);
 
   useEffect(() => {
     roomIdRef.current = roomId;
@@ -48,8 +49,10 @@ const Chat = () => {
           const commonTags = parts[2].trim(); // This is either a comma-separated list or "random"
           console.log(commonTags);
           if (commonTags === "no common match") {
-            setStatus("Matched! No one with your tags was available—connecting you with a random user.");          
-          } else if (!commonTags || commonTags === "random"){
+            setStatus(
+              "Matched! No one with your tags was available—connecting you with a random user."
+            );
+          } else if (!commonTags || commonTags === "random") {
             setStatus(`Matched with a random user!`);
           } else {
             setStatus(`Matched! Common Tags: ${commonTags}`);
@@ -57,12 +60,12 @@ const Chat = () => {
         } else {
           setStatus("Matched with a random user!");
         }
-      } else if (data.startsWith("MSG:")) {
+      } else if (data.startsWith("MSG:")) { // Regular text message
         setMessages((prev) => [
           ...prev,
           { text: data.substring(4), isSent: false },
         ]);
-      } else if (data.startsWith("PARTNER_LEFT:")) {
+      } else if (data.startsWith("PARTNER_LEFT:")) { 
         console.log("Received PARTNER_LEFT message:", data);
         // The other user left the match
         const partedRoom = data.split(":")[1];
@@ -72,6 +75,9 @@ const Chat = () => {
           setStatus("Your partner left the match. Click 'Find new match'.");
           setHasSkipped(true);
         }
+      } else if (data.startsWith("TYPING")) { // Handle typing indicator from partner
+        const typingState = data.substring("TYPING:".length).trim();
+        setPartnerTyping(typingState === "true");
       }
     };
 
@@ -127,6 +133,12 @@ const Chat = () => {
     }
   };
 
+  const handleTyping = (isTyping) => {
+    if (socket && socket.readyState === WebSocket.OPEN && roomId) {
+      socket.send(`TYPING:${roomId}:${isTyping}`);
+    }
+  }
+
   return (
     <Background>
       <div className="chat__container">
@@ -135,10 +147,10 @@ const Chat = () => {
           <div className="chat_content">
             {/* Status Indicator */}
             <div className="chat_status">
-              <p>{status}</p>
+              <p className="status-text">{status}</p>
+              {partnerTyping && <p className="typing-indicator">Partner is typing...</p>}
             </div>
-
-            {/* Right: Message Board + Text Input */}
+            {/* Message Board and Chat */}
             <div className="chat_interface">
               <MessageBoard messages={messages} />
               <TextBox
@@ -146,6 +158,7 @@ const Chat = () => {
                 onSkip={handleSkip}
                 skipLabel={skipLabel}
                 disabled={inputDisabled}
+                onTyping={handleTyping}
               />
             </div>
           </div>

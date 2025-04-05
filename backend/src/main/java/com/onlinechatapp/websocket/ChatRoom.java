@@ -48,8 +48,16 @@ public class ChatRoom {
             System.out.println("Notified partner (" + partner.getId() + ") that user left room " + id);
         }
     }
-    
 
+    public void sendTypingIndicator(String typingStatus, WebSocketSession sender) throws IOException {
+        if (user1.isOpen() && !user1.equals(sender)) {
+            user1.sendMessage(new TextMessage("TYPING:" + typingStatus));
+        }
+        if (user2.isOpen() && !user2.equals(sender)) {
+            user2.sendMessage(new TextMessage("TYPING:" + typingStatus));
+        }
+    }    
+    
     public boolean containsSession(WebSocketSession session) {
         return session.equals(user1) || session.equals(user2);
     }
