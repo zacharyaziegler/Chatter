@@ -26,7 +26,7 @@ public class ChatHandler extends TextWebSocketHandler {
 
         try {
             if (payload.startsWith("TAGS:")) {
-                String[] tags = payload.substring(5).split(",");
+                String[] tags = payload.substring(5).toLowerCase().split(",");
                 handleUserConnection(session, tags);
             } else if (payload.startsWith("MSG:")) {
                 String[] parts = payload.split(":", 3);
