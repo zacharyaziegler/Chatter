@@ -23,6 +23,6 @@
     .chat-box {
       width: 100vw;
       margin-top: 78px;
-      /* height: 100vh; */
+      height: 100vh;
     }
   }
