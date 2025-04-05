@@ -13,6 +13,7 @@ public class ChatHandler extends TextWebSocketHandler {
     private static final List<UserSession> waitingUsers = new ArrayList<>();
     private static final Map<String, ChatRoom> activeChats = new HashMap<>();
     private static final AtomicInteger activeUserCount = new AtomicInteger(6);
+
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         System.out.println("User connected: " + session.getId());
@@ -54,6 +55,16 @@ public class ChatHandler extends TextWebSocketHandler {
                 String rtcData = parts[2];
 
                 relayWebRTCMessage(chatRoomId, rtcData, session);
+            } else if (payload.startsWith("TYPING:")) { // If user is typing
+                String[] parts = payload.split(":", 3);
+                if (parts.length < 3)
+                    return;
+                String chatRoomId = parts[1];
+                String typingStatus = parts[2]; // Expecting "true" or "false"
+                ChatRoom room = activeChats.get(chatRoomId);
+                if (room != null) {
+                    room.sendTypingIndicator(typingStatus, session);
+                }
             }
         } catch (Exception e) {
             System.err.println("Error handling message: " + e.getMessage());
@@ -86,49 +97,50 @@ public class ChatHandler extends TextWebSocketHandler {
 
         room.relayRTCMessage(rtcData, senderSession);
     }
-    
+
     private void handleUserConnection(WebSocketSession session, String[] tags) throws IOException {
         // Clean the incoming tags by trimming and removing empty ones.
         List<String> sessionTags = Arrays.stream(tags)
                 .map(String::trim)
                 .filter(tag -> !tag.isEmpty())
                 .collect(Collectors.toList());
-        
+
         synchronized (waitingUsers) {
-            // First, try to find a waiting user (other than yourself) with at least one common tag.
+            // First, try to find a waiting user (other than yourself) with at least one
+            // common tag.
             Optional<UserSession> match = waitingUsers.stream()
                     .filter(user -> !user.getSession().getId().equals(session.getId()))
                     .filter(user -> user.matchesTags(tags))
                     .findFirst();
-    
+
             // If no common-tag match is found, then look for any available user.
             if (!match.isPresent()) {
                 match = waitingUsers.stream()
                         .filter(user -> !user.getSession().getId().equals(session.getId()))
                         .findAny();
             }
-    
+
             if (match.isPresent()) {
                 UserSession matchedUser = match.get();
                 waitingUsers.remove(matchedUser);
-    
+
                 String chatRoomId = UUID.randomUUID().toString();
                 ChatRoom chatRoom = new ChatRoom(chatRoomId, session, matchedUser.getSession());
                 activeChats.put(chatRoomId, chatRoom);
-    
+
                 // Clean waiting user's tags as well.
                 List<String> waitingTags = matchedUser.getTags().stream()
                         .map(String::trim)
                         .filter(tag -> !tag.isEmpty())
                         .collect(Collectors.toList());
-    
+
                 // Compute the common tags between the two.
                 Set<String> common = new HashSet<>(sessionTags);
                 common.retainAll(waitingTags);
-    
+
                 String tagInfoForSession;
                 String tagInfoForWaiting;
-    
+
                 // Determine what each user should see.
                 if (sessionTags.isEmpty() && waitingTags.isEmpty()) {
                     tagInfoForSession = "random";
@@ -151,14 +163,15 @@ public class ChatHandler extends TextWebSocketHandler {
                         tagInfoForWaiting = commonStr;
                     }
                 }
-    
+
                 // Send MATCHED messages with the chat room id and individual tag info.
                 String message = "MATCHED:" + chatRoomId + ":" + tagInfoForSession;
                 session.sendMessage(new TextMessage(message));
-                matchedUser.getSession().sendMessage(new TextMessage("MATCHED:" + chatRoomId + ":" + tagInfoForWaiting));
-                
+                matchedUser.getSession()
+                        .sendMessage(new TextMessage("MATCHED:" + chatRoomId + ":" + tagInfoForWaiting));
+
                 System.out.println("Matched " + session.getId() + " (tags: " + sessionTags + ") with " +
-                                   matchedUser.getSession().getId() + " (tags: " + waitingTags + ") (common: " + common + ")");
+                        matchedUser.getSession().getId() + " (tags: " + waitingTags + ") (common: " + common + ")");
             } else {
                 // Remove any duplicate waiting record for this session and add it.
                 waitingUsers.removeIf(user -> user.getSession().getId().equals(session.getId()));
@@ -167,8 +180,6 @@ public class ChatHandler extends TextWebSocketHandler {
             }
         }
     }
-    
-    
 
     private void sendMessageToRoom(String chatRoomId, String message, WebSocketSession senderSession)
             throws IOException {
