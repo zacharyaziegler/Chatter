@@ -6,6 +6,8 @@ Chatter is a real-time, anonymous chat application inspired by the classic Omegl
 
 Check out Chatter live at: [https://chatter.rip](https://chatter.rip)
 
+Note: The backend is currently hosted on Render's free tier. It may spin down during periods of inactivity, so the initial request after inactivity could take up to a minute to load.
+
 ## Features
 
 - **Real-Time Chat:** Instant messaging using secure WebSocket connections.
