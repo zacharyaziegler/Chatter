@@ -1,11 +1,11 @@
-// import ParticleBackground from "./ParticleBackground";
+import ParticleBackground from "./ParticleBackground";
 import PropTypes from "prop-types";
 import "../styles/Background.css";
 
 const Background = ({ children }) => {
     return (
-        <div className="solid-background">
-            {/* <ParticleBackground />  */}
+        <div className="background">
+            <ParticleBackground /> 
             {children} 
         </div>
     );

@@ -40,7 +40,7 @@ public class ChatRoom {
     }
 
     public void notifyPartnerLeft(WebSocketSession leavingSession) throws IOException {
-        // Identify the "partner" who did NOT leave
+        // Identify the partner who did NOT leave
         WebSocketSession partner = leavingSession.equals(user1) ? user2 : user1;
     
         if (partner.isOpen()) {
