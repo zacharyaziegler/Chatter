@@ -107,7 +107,6 @@ public class ChatHandler extends TextWebSocketHandler {
 
         synchronized (waitingUsers) {
             // First, try to find a waiting user (other than yourself) with at least one
-            // common tag.
             Optional<UserSession> match = waitingUsers.stream()
                     .filter(user -> !user.getSession().getId().equals(session.getId()))
                     .filter(user -> user.matchesTags(tags))
