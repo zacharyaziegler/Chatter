@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import "../styles/Home.css";
 import Header from "../components/Header";
 import Background from "../components/Background";
-// TODO: normalize tag input so uppercase/lowercase doesnt matter
 const Home = () => {
   const [tags, setTags] = useState([]);
   const [inputValue, setInputValue] = useState("");
